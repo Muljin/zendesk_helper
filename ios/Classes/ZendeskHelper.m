@@ -1,5 +1,5 @@
 #import "ZendeskHelper.h"
-#if __has_include(<zendesk_plugin/zendesk_helper-Swift.h>)
+#if __has_include(<zendesk_helper/zendesk_helper-Swift.h>)
 #import <zendesk_helper/zendesk_helper-Swift.h>
 #else
 // Support project import fallback if the generated compatibility header
