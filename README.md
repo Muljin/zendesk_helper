@@ -53,8 +53,8 @@ await Zendesk.removetags(['tag1', 'tag3'])
 Open chat client
 
 ```dart
-Zendesk.startChat(primaryColor: Colors.red);
+Zendesk.startChat(primaryColor: Colors.red,isDarkTheme:true);
 
-// Note: primaryColor will only configure iOS. Android AppBar color
+// Note: primaryColor and isDarkTheme will only configure iOS. Android AppBar color
 // is controlled by the app's theme
 ```

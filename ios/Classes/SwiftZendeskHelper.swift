@@ -83,8 +83,8 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
               let isAgentAvailabilityEnabled = dictionary["isAgentAvailabilityEnabled"] as? Bool,
               let isChatTranscriptPromptEnabled = dictionary["isChatTranscriptPromptEnabled"] as? Bool,
               let isOfflineFormEnabled = dictionary["isOfflineFormEnabled"] as? Bool
+                
         else {return}
-        
         if let primaryColor = dictionary["primaryColor"] as? Int {
             CommonTheme.currentTheme.primaryColor = uiColorFromHex(rgbValue: primaryColor)
         }
@@ -103,7 +103,14 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         let chatEngine = try ChatEngine.engine()
         let viewController = try Messaging.instance.buildUI(engines: [chatEngine], configs: [messagingConfiguration, chatConfiguration])
         viewController.title = "Contact Us"
-        
+        if let theme = dictionary["isDarkTheme"] as? Bool {
+            if #available(iOS 13.0, *) {
+                viewController.overrideUserInterfaceStyle = theme ? .dark : .light
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+
         // Present view controller
         let rootViewController = UIApplication.shared.windows.filter({ (w) -> Bool in
             return w.isHidden == false
