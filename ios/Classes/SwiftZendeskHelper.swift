@@ -90,7 +90,7 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         }
         // Name for Bot messages
         let messagingConfiguration = MessagingConfiguration()
-        messagingConfiguration.name = "Chat Bot"
+        messagingConfiguration.name = dictionary["botName"] as? String ?? "Answer Bot"
         
         // Chat configuration
         let chatConfiguration = ChatConfiguration()
@@ -120,20 +120,14 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
     
     
     func presentViewController(rootViewController: UIViewController?, view: UIViewController) {
-        if (rootViewController is UINavigationController) {
-            (rootViewController as! UINavigationController).pushViewController(view, animated: true)
-        } else {
-            if #available(iOS 13.0, *) {
-                 if var topController = UIApplication.shared.keyWindow?.rootViewController  {
+        if var topController = UIApplication.shared.keyWindow?.rootViewController  {
                        while let presentedViewController = topController.presentedViewController {
                              topController = presentedViewController
                             }
                  topController.present(view, animated: true, completion: nil)
-            }
-
         }
     }
-    }
+
     func uiColorFromHex(rgbValue: Int) -> UIColor {
         let red =   CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0
         let green = CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0
