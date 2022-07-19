@@ -51,14 +51,17 @@ class Zendesk {
   /// If [isOfflineFormEnabled] is true, the offline form will be shown to the user.
   ///
   /// Optionally set bot's name using [botName]
+  /// Optionally set toolbarTitle using [toolbarTitle]
   static Future<void> startChat({bool? isDarkTheme,
     Color? primaryColor,
     bool isPreChatFormEnabled = true,
     bool isAgentAvailabilityEnabled = true,
     bool isChatTranscriptPromptEnabled = true,
     bool isOfflineFormEnabled = true,
-    String? botName,
+    String? botName = 'Answer Bot',
+    String? toolbarTitle = 'Contact Us',
   }) async {
+
     await _channel.invokeMethod<void>('startChat', {
       'isDarkTheme': isDarkTheme,
       'primaryColor': primaryColor?.value,
@@ -66,6 +69,7 @@ class Zendesk {
       'isAgentAvailabilityEnabled': isAgentAvailabilityEnabled,
       'isChatTranscriptPromptEnabled': isChatTranscriptPromptEnabled,
       'isOfflineFormEnabled': isOfflineFormEnabled,
+      'toolbarTitle': toolbarTitle,
       'botName': botName,
     });
   }
