@@ -1,10 +1,7 @@
 package com.muljin.zendesk
 
 import android.app.Activity
-import android.util.Log
 import androidx.annotation.NonNull
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.internal.ContextUtils.getActivity
 import com.zendesk.logger.Logger
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -14,7 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import zendesk.chat.*
-import zendesk.messaging.MessagingActivity
+import zendesk.classic.messaging.MessagingActivity
 
 
 /** ZendeskHelper */
