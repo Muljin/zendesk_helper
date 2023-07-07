@@ -5,7 +5,7 @@ buildscript {
     ext.kotlin_version = '1.8.22'
     repositories {
         google()
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -17,7 +17,7 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        mavenCentral()
+        jcenter()
         maven { url 'https://zendesk.jfrog.io/zendesk/repo' }
     }
 }
