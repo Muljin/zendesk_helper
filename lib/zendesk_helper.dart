@@ -97,8 +97,7 @@ class Zendesk {
     await _channel.invokeMethod<void>('resetIdentity');
   }
 
-  /// Resets the visitor details to a clean slate allowing a new visitor to chat
-  /// Any ongoing chat will be ended, and locally stored information about the visitor will be cleared.
+  /// Sends a new text message and updates the local chat logs.
   Future<void> sendMessage(String message) async {
     await _channel.invokeMethod<void>('sendMessage', {'message': message});
   }
