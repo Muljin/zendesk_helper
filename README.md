@@ -25,15 +25,25 @@ Deployment Target >= `10.0`
 ## Usage
 
 Initializing the plugin
+Authenticating users with JWT
+To identify users with an email and name, it is necessary to generate a jwt token, instructions to obtain the JWT secret can be found [here](https://developer.zendesk.com/documentation/classic-web-widget-sdks/chat-sdk-v2/working-with-the-chat-sdk/enabling-authenticated-users-with-the-chat-sdk-/#generating-a-chat-shared-secret).
 
 ```dart
-await Zendesk.initialize(<account key>, <application id>);
+Future<String> getJwtToken(){
+    // your implementation
+}
+final zendesk = Zendesk()
+await zendesk.initialize(
+    accountKey: <account key>,
+    appId: <application id>),
+    getJwtToken: getJwtToken,
+)
 ```
 
 Setting visitor information (optional)
 
 ```dart
-await Zendesk.setVisitorInfo(
+await zendesk.setVisitorInfo(
     name: 'Text Client',
     email: 'test+client@example.com',
     phoneNumber: '0000000000',
@@ -44,8 +54,8 @@ await Zendesk.setVisitorInfo(
 Adding and removing tags
 
 ```dart
-await Zendesk.addTags(['tag1', 'tag2', 'tag3']);
-await Zendesk.removetags(['tag1', 'tag3'])
+await zendesk.addTags(['tag1', 'tag2', 'tag3']);
+await zendesk.removetags(['tag1', 'tag3'])
 
 // Result is only tag2 will be present on the chat
 ```
@@ -53,8 +63,21 @@ await Zendesk.removetags(['tag1', 'tag3'])
 Open chat client
 
 ```dart
-Zendesk.startChat(primaryColor: Colors.red,isDarkTheme:true);
+zendesk.startChat(primaryColor: Colors.red,isDarkTheme:true);
 
 // Note: primaryColor and isDarkTheme will only configure iOS. Android AppBar color
 // is controlled by the app's theme
+```
+
+Resetting Visitor Identity
+
+```dart
+await zendesk.resetIdentity();
+// Note: Resets the visitor details and end any ongoing chat including chat log history
+```
+
+Sending a Chat Message
+
+```dart
+await zendesk.sendMessage('hello world');
 ```
