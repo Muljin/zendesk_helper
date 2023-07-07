@@ -57,7 +57,7 @@ class _MyPageState extends State<MyPage> {
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Initialize  example with proper\nkeys in main.dart',
+                'Initialize example with proper\nkeys in main.dart',
                 textAlign: TextAlign.center,
               ),
             ),
