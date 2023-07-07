@@ -81,7 +81,7 @@ class ZendeskHelper : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
 
                 "resetIdentity" -> {
-                    resetIdentity(call)
+                    resetIdentity()
                     result.success(true)
                 }
 
@@ -108,7 +108,7 @@ class ZendeskHelper : FlutterPlugin, MethodCallHandler, ActivityAware {
         Chat.INSTANCE.init(activity, accountKey, applicationId)
         activity.runOnUiThread {
             Chat.INSTANCE.setIdentity { jwtCompletion ->
-                channel.invokeMethod("getJwt", null, object : MethodChannel.Result {
+                channel.invokeMethod("getJwt", null, object : Result {
                     override fun success(result: Any?) {
                         try {
                             jwtCompletion.onTokenLoaded(result as String)
@@ -135,7 +135,7 @@ class ZendeskHelper : FlutterPlugin, MethodCallHandler, ActivityAware {
         Chat.INSTANCE.providers()?.chatProvider()?.sendMessage(message)
     }
 
-    private fun resetIdentity(call: MethodCall) {
+    private fun resetIdentity() {
         Chat.INSTANCE.resetIdentity()
     }
 
@@ -158,13 +158,13 @@ class ZendeskHelper : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun addTags(call: MethodCall) {
-        val tags = call.argument<List<String>>("tags") ?: listOf<String>()
+        val tags = call.argument<List<String>>("tags") ?: listOf()
         val profileProvider = Chat.INSTANCE.providers()?.profileProvider()
         profileProvider?.addVisitorTags(tags, null)
     }
 
     private fun removeTags(call: MethodCall) {
-        val tags = call.argument<List<String>>("tags") ?: listOf<String>()
+        val tags = call.argument<List<String>>("tags") ?: listOf()
         val profileProvider = Chat.INSTANCE.providers()?.profileProvider()
         profileProvider?.removeVisitorTags(tags, null)
     }
