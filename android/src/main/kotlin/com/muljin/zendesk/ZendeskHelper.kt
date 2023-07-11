@@ -126,16 +126,29 @@ try {
     val toolbarTitle = call.argument<String>("toolbarTitle") ?: "Contact Us"
     val botName = call.argument<String>("botName") ?: "Answer Bot"
     val isPreChatFormEnabled = call.argument<Boolean>("isPreChatFormEnabled") ?: true
+    val isPreChatEmailField = call.argument<Boolean>("isPreChatEmailField") ?: true
+    val isPreChatNameField = call.argument<Boolean>("isPreChatNameField") ?: true
+    val isPreChatPhoneField = call.argument<Boolean>("isPreChatPhoneField") ?: true
     val isAgentAvailabilityEnabled = call.argument<Boolean>("isAgentAvailabilityEnabled") ?: true
     val isChatTranscriptPromptEnabled = call.argument<Boolean>("isChatTranscriptPromptEnabled") ?: true
     val isOfflineFormEnabled = call.argument<Boolean>("isOfflineFormEnabled") ?: true
+    val disableEndChatMenuAction = call.argument<Boolean>("disableEndChatMenuAction")?:false
+
+    val chatMenuAction = if (disableEndChatMenuAction) ChatMenuAction.CHAT_TRANSCRIPT else ChatMenuAction.END_CHAT
+    val withEmailField = if (isPreChatEmailField) PreChatFormFieldStatus.OPTIONAL else PreChatFormFieldStatus.HIDDEN
+    val withNameField = if (isPreChatNameField) PreChatFormFieldStatus.OPTIONAL else PreChatFormFieldStatus.HIDDEN
+    val withPhoneField = if (isPreChatPhoneField) PreChatFormFieldStatus.OPTIONAL else PreChatFormFieldStatus.HIDDEN
+
     val chatConfigurationBuilder = ChatConfiguration.builder()
     chatConfigurationBuilder
         .withAgentAvailabilityEnabled(isAgentAvailabilityEnabled)
         .withTranscriptEnabled(isChatTranscriptPromptEnabled)
         .withOfflineFormEnabled(isOfflineFormEnabled)
+        .withEmailFieldStatus(withEmailField)
+        .withNameFieldStatus(withNameField)
+        .withPhoneFieldStatus(withPhoneField)
         .withPreChatFormEnabled(isPreChatFormEnabled)
-        .withChatMenuActions(ChatMenuAction.END_CHAT)
+        .withChatMenuActions(chatMenuAction)
 
     val chatConfiguration = chatConfigurationBuilder.build()
 
