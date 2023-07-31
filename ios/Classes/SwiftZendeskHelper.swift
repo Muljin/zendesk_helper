@@ -41,6 +41,9 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         case "removeTags":
             removeTags(dictionary: dic!)
             result(true)
+        case "sendMessage":
+            sendMessage(dictionary: dic!)
+            result(true)
         default:
             result("iOS " + UIDevice.current.systemVersion)
         }
@@ -141,5 +144,13 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         if (chatAPIConfig == nil) {
             chatAPIConfig = ChatAPIConfiguration()
         }
+    }
+
+
+    func sendMessage(dictionary: Dictionary<String, Any>) {
+        guard let message = dictionary["message"] as? String
+        else { return }
+        
+        Chat.chatProvider?.sendMessage(message)
     }
 }

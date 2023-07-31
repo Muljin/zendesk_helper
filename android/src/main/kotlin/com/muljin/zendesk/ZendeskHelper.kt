@@ -74,6 +74,10 @@ try {
         removeTags(call)
         result.success(true)
       }
+      "sendMessage" -> {
+        sendMessage(call)
+        result.success(true)
+      }
       else -> {
         result.notImplemented()
       }
@@ -84,7 +88,7 @@ try {
 }
   }
 
-  fun initialize(call: MethodCall) {
+  private fun initialize(call: MethodCall) {
     Logger.setLoggable(BuildConfig.DEBUG)
     val accountKey = call.argument<String>("accountKey") ?: ""
     val applicationId = call.argument<String>("appId") ?: ""
@@ -92,7 +96,7 @@ try {
     Chat.INSTANCE.init(activity, accountKey, applicationId)
   }
 
-  fun setVisitorInfo(call: MethodCall) {
+  private fun setVisitorInfo(call: MethodCall) {
     val name = call.argument<String>("name") ?: ""
     val email = call.argument<String>("email") ?: ""
     val phoneNumber = call.argument<String>("phoneNumber") ?: ""
@@ -110,19 +114,19 @@ try {
     chatProvider?.setDepartment(department, null)
   }
 
-  fun addTags(call: MethodCall) {
+  private fun addTags(call: MethodCall) {
     val tags = call.argument<List<String>>("tags") ?: listOf<String>()
     val profileProvider = Chat.INSTANCE.providers()?.profileProvider()
     profileProvider?.addVisitorTags(tags, null)
   }
 
-  fun removeTags(call: MethodCall) {
+  private fun removeTags(call: MethodCall) {
     val tags = call.argument<List<String>>("tags") ?: listOf<String>()
     val profileProvider = Chat.INSTANCE.providers()?.profileProvider()
     profileProvider?.removeVisitorTags(tags, null)
   }
 
-  fun startChat(call: MethodCall) {
+  private fun startChat(call: MethodCall) {
     val toolbarTitle = call.argument<String>("toolbarTitle") ?: "Contact Us"
     val botName = call.argument<String>("botName") ?: "Answer Bot"
     val isPreChatFormEnabled = call.argument<Boolean>("isPreChatFormEnabled") ?: true
@@ -149,5 +153,11 @@ try {
  throw e;
 }
 
+  }
+
+  private fun sendMessage(call: MethodCall) {
+    val message = call.argument<String>("message") ?: ""
+    val chatProvider = Chat.INSTANCE.providers()?.chatProvider()
+    chatProvider?.sendMessage(message)
   }
 }

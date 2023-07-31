@@ -52,7 +52,8 @@ class Zendesk {
   ///
   /// Optionally set bot's name using [botName]
   /// Optionally set toolbarTitle using [toolbarTitle]
-  static Future<void> startChat({bool? isDarkTheme,
+  static Future<void> startChat({
+    bool? isDarkTheme,
     Color? primaryColor,
     bool isPreChatFormEnabled = true,
     bool isAgentAvailabilityEnabled = true,
@@ -61,7 +62,6 @@ class Zendesk {
     String? botName = 'Answer Bot',
     String? toolbarTitle = 'Contact Us',
   }) async {
-
     await _channel.invokeMethod<void>('startChat', {
       'isDarkTheme': isDarkTheme,
       'primaryColor': primaryColor?.value,
@@ -86,6 +86,13 @@ class Zendesk {
   static Future<void> removeTags({List<String>? tags}) async {
     await _channel.invokeMethod<void>('removeTags', {
       'tags': tags,
+    });
+  }
+
+  /// Send [message] to the chat
+  static Future<void> sendMessage(String message) async {
+    await _channel.invokeMethod<void>('sendMessage', {
+      'message': message,
     });
   }
 }
