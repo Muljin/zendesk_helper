@@ -21,8 +21,8 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) {
       return;
     }
-             const _accountKey='C4NkxGBoxHSTMW3Gm3gznZ6AxIqYXWkZ';
-  const _appId='ff92947363297c35ad960e50edc747e7a19dbbd7235a852e';
+    const _accountKey = 'C4NkxGBoxHSTMW3Gm3gznZ6AxIqYXWkZ';
+    const _appId = 'ff92947363297c35ad960e50edc747e7a19dbbd7235a852e';
 
     await Zendesk.initialize(_accountKey, _appId);
   }
@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> {
           phoneNumber: '0000000000',
           department: 'Support');
       await Zendesk.startChat(primaryColor: Colors.red);
-    } on dynamic catch (ex) {
+    } catch (ex) {
       print('An error occured $ex');
     }
   }
