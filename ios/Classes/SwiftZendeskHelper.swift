@@ -83,9 +83,13 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
     
     func startChat(dictionary: Dictionary<String, Any>) throws {
         guard let isPreChatFormEnabled = dictionary["isPreChatFormEnabled"] as? Bool,
+              let isPreChatEmailField = dictionary["isPreChatEmailField"] as? Bool,
+              let isPreChatNameField = dictionary["isPreChatNameField"] as? Bool,
+              let isPreChatPhoneField = dictionary["isPreChatPhoneField"] as? Bool,
               let isAgentAvailabilityEnabled = dictionary["isAgentAvailabilityEnabled"] as? Bool,
               let isChatTranscriptPromptEnabled = dictionary["isChatTranscriptPromptEnabled"] as? Bool,
-              let isOfflineFormEnabled = dictionary["isOfflineFormEnabled"] as? Bool
+              let isOfflineFormEnabled = dictionary["isOfflineFormEnabled"] as? Bool,
+              let disableEndChatMenuAction = dictionary["disableEndChatMenuAction"] as? Bool
                 
         else {return}
         if let primaryColor = dictionary["primaryColor"] as? Int {
@@ -95,12 +99,19 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         let messagingConfiguration = MessagingConfiguration()
         messagingConfiguration.name = dictionary["botName"] as? String ?? "Answer Bot"
         
+        let formConfiguration =  ChatFormConfiguration(name: isPreChatNameField ? .optional : .hidden,
+                                                       email: isPreChatEmailField ? .optional : .hidden,
+                                                       phoneNumber: isPreChatPhoneField ? .optional : .hidden)
+        
+        let chatMenuActions = disableEndChatMenuAction ?  [] : [.emailTranscript, .endChat] as Array<ChatMenuAction>         
         // Chat configuration
         let chatConfiguration = ChatConfiguration()
         chatConfiguration.isPreChatFormEnabled = isPreChatFormEnabled
+        chatConfiguration.preChatFormConfiguration = formConfiguration
         chatConfiguration.isAgentAvailabilityEnabled = isAgentAvailabilityEnabled
         chatConfiguration.isChatTranscriptPromptEnabled = isChatTranscriptPromptEnabled
         chatConfiguration.isOfflineFormEnabled = isOfflineFormEnabled
+        chatConfiguration.chatMenuActions =  chatMenuActions
         
         // Build view controller
         let chatEngine = try ChatEngine.engine()
