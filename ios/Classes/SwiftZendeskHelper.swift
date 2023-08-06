@@ -44,6 +44,18 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         case "sendMessage":
             sendMessage(dictionary: dic!)
             result(true)
+        case "endChat":
+            let isChatting = endChat { endChatResult in
+                switch endChatResult {
+                case .success:
+                    result(true)
+                case .failure(let error):
+                    result(FlutterError(code: "endChat", message: error.localizedDescription, details: "Failed endChat \(error)"))
+                }
+            }
+            if(!isChatting) {
+                result(true)
+            }
         default:
             result("iOS " + UIDevice.current.systemVersion)
         }
@@ -152,5 +164,15 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         else { return }
         
         Chat.instance?.chatProvider.sendMessage(message)
+    }
+
+    private func endChat(completionHandler: @escaping ((Result<Bool, DeliveryStatusError>) -> Void)) -> Bool {
+        guard let chatProvider = Chat.instance?.chatProvider,
+          chatProvider.chatState.isChatting else {
+            return false
+        }
+
+        chatProvider.endChat(completionHandler)
+        return true
     }
 }
