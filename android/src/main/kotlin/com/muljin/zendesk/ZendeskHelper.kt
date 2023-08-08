@@ -234,5 +234,6 @@ try {
     }
 
     pushProvider.unregisterPushToken()
+    flutterResult.success(true)
   }
 }
