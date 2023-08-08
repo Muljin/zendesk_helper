@@ -3,6 +3,8 @@ package com.muljin.zendesk
 import android.app.Activity
 import androidx.annotation.NonNull
 import com.zendesk.logger.Logger
+import com.zendesk.service.ErrorResponse
+import com.zendesk.service.ZendeskCallback
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -77,6 +79,9 @@ try {
       "sendMessage" -> {
         sendMessage(call)
         result.success(true)
+      }
+      "endChat" -> {
+        endChat(result)
       }
       else -> {
         result.notImplemented()
@@ -169,8 +174,37 @@ try {
   }
 
   private fun sendMessage(call: MethodCall) {
-    val message = call.argument<String>("message") ?: ""
+    val message = call.argument<String>("message") ?: return
+
     val chatProvider = Chat.INSTANCE.providers()?.chatProvider()
     chatProvider?.sendMessage(message)
+  }
+
+  private fun endChat(flutterResult: Result) {
+    val chatProvider = Chat.INSTANCE.providers()?.chatProvider()
+
+    if(chatProvider?.chatState?.isChatting != true) {
+      flutterResult.success(true)
+      return
+    }
+
+    val callback = object : ZendeskCallback<Void>() {
+      override fun onSuccess(result: Void?) {
+        println("endChat onSuccess")
+        flutterResult.success(true)
+      }
+
+      override fun onError(error: ErrorResponse?) {
+        println("endChat onError ${error?.reason}")
+        if(error == null) {
+          flutterResult.success(true)
+          return
+        }
+        flutterResult.error("endChat", error.reason, error.toString())
+      }
+    }
+
+
+    chatProvider.endChat(callback)
   }
 }

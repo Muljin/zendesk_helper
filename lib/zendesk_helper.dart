@@ -109,4 +109,8 @@ class Zendesk {
       'message': message,
     });
   }
+
+  static Future<void> endChat() async {
+    await _channel.invokeMethod<void>('endChat');
+  }
 }
