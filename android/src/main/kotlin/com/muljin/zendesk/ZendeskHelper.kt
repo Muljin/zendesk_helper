@@ -14,6 +14,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import zendesk.chat.*
 import zendesk.classic.messaging.MessagingActivity
+import java.lang.reflect.Method
 
 
 /** ZendeskHelper */
@@ -81,7 +82,13 @@ try {
         result.success(true)
       }
       "endChat" -> {
-        endChat(result)
+        result.success(endChat())
+      }
+      "registerPushToken" -> {
+        registerPushToken(call, result)
+      }
+      "unregisterPushToken" -> {
+        unregisterPushToken(result)
       }
       else -> {
         result.notImplemented()
@@ -180,31 +187,52 @@ try {
     chatProvider?.sendMessage(message)
   }
 
-  private fun endChat(flutterResult: Result) {
+  private fun endChat(): Boolean {
     val chatProvider = Chat.INSTANCE.providers()?.chatProvider()
 
     if(chatProvider?.chatState?.isChatting != true) {
-      flutterResult.success(true)
-      return
+      return false
     }
 
-    val callback = object : ZendeskCallback<Void>() {
+    chatProvider.endChat(object : ZendeskCallback<Void>() {
       override fun onSuccess(result: Void?) {
         println("endChat onSuccess")
-        flutterResult.success(true)
       }
 
       override fun onError(error: ErrorResponse?) {
         println("endChat onError ${error?.reason}")
-        if(error == null) {
-          flutterResult.success(true)
-          return
-        }
-        flutterResult.error("endChat", error.reason, error.toString())
       }
+    })
+
+    return true
+  }
+
+  private fun registerPushToken(call: MethodCall, flutterResult: Result) {
+    val pushToken = call.argument<String>("pushToken")
+    if(pushToken == null) {
+      flutterResult.error("registerPushToken", "pushToken is required", null)
+      return
     }
 
+    val pushProvider = Chat.INSTANCE.providers()?.pushNotificationsProvider()
 
-    chatProvider.endChat(callback)
+    if(pushProvider == null) {
+      flutterResult.error("registerPushToken", "pushProvider is null", null)
+      return
+    }
+
+    pushProvider.registerPushToken(pushToken)
+    flutterResult.success(true)
+  }
+
+  private fun unregisterPushToken(flutterResult: Result) {
+    val pushProvider = Chat.INSTANCE.providers()?.pushNotificationsProvider()
+
+    if(pushProvider == null) {
+      flutterResult.error("unregisterPushToken", "pushProvider is null", null)
+      return
+    }
+
+    pushProvider.unregisterPushToken()
   }
 }

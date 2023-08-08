@@ -113,4 +113,14 @@ class Zendesk {
   static Future<void> endChat() async {
     await _channel.invokeMethod<void>('endChat');
   }
+
+  static Future<void> registerPushToken(String pushToken) async {
+    await _channel.invokeMethod<void>('registerPushToken', {
+      'pushToken': pushToken,
+    });
+  }
+
+  static Future<void> unregisterPushToken() async {
+    await _channel.invokeMethod<void>('unregisterPushToken');
+  }
 }

@@ -56,6 +56,10 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
             if(!isChatting) {
                 result(true)
             }
+        case "registerPushToken":
+            registerPushToken(dictionary: dic!, flutterResult: result)
+        case "unregisterPushToken":
+            result(unregisterPushToken())
         default:
             result("iOS " + UIDevice.current.systemVersion)
         }
@@ -185,5 +189,28 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
 
         chatProvider.endChat(completionHandler)
         return true
+    }
+    
+    private func registerPushToken(dictionary: Dictionary<String, Any>, flutterResult: FlutterResult) {
+        guard let pushProvider = Chat.instance?.pushNotificationsProvider,
+            let pushToken = dictionary["pushToken"] as? String else {
+            flutterResult(FlutterError(code: "pushToken", message: "pushToken is nil", details: nil))
+            return
+        }
+
+        pushProvider.registerPushTokenString(pushToken)
+        flutterResult(true)
+    }
+    
+    private func unregisterPushToken() -> Bool {
+        guard let pushProvider = Chat.instance?.pushNotificationsProvider else {
+            return true
+        }
+        do {
+            try pushProvider.unregisterPushToken()
+            return true
+        } catch {
+            return false
+        }
     }
 }
