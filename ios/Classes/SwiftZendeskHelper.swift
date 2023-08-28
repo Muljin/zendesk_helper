@@ -9,6 +9,10 @@ import MessagingSDK
 
 public class SwiftZendeskHelper: NSObject, FlutterPlugin {
     var chatAPIConfig: ChatAPIConfiguration?
+    let navController = UINavigationController()
+    let rootViewController = UIApplication.shared.windows.filter({ (w) -> Bool in
+        return w.isHidden == false
+    }).first?.rootViewController
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "zendesk", binaryMessenger: registrar.messenger())
@@ -97,6 +101,11 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         Chat.instance?.configuration = chatAPIConfig!
     }
     
+    @objc
+    func backButton(){
+        navController.dismiss(animated: true)
+    }
+    
     func startChat(dictionary: Dictionary<String, Any>) throws {
         guard let isPreChatFormEnabled = dictionary["isPreChatFormEnabled"] as? Bool,
               let isPreChatEmailField = dictionary["isPreChatEmailField"] as? Bool,
@@ -132,7 +141,11 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
         // Build view controller
         let chatEngine = try ChatEngine.engine()
         let viewController = try Messaging.instance.buildUI(engines: [chatEngine], configs: [messagingConfiguration, chatConfiguration])
-        viewController.title = "Contact Us"
+        
+        navController.viewControllers = [viewController]
+        
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Fechar", style: .plain, target: self, action: #selector(backButton))
+        viewController.title = "Suporte"
         if let theme = dictionary["isDarkTheme"] as? Bool {
             if #available(iOS 13.0, *) {
                 viewController.overrideUserInterfaceStyle = theme ? .dark : .light
@@ -141,11 +154,7 @@ public class SwiftZendeskHelper: NSObject, FlutterPlugin {
             }
         }
 
-        // Present view controller
-        let rootViewController = UIApplication.shared.windows.filter({ (w) -> Bool in
-            return w.isHidden == false
-        }).first?.rootViewController
-        presentViewController(rootViewController: rootViewController, view: viewController);
+        presentViewController(rootViewController: rootViewController, view: navController);
     }
     
     
