@@ -1,11 +1,10 @@
 package com.muljin.zendesk
 
 import android.app.Activity
-import android.util.Log
 import androidx.annotation.NonNull
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.internal.ContextUtils.getActivity
 import com.zendesk.logger.Logger
+import com.zendesk.service.ErrorResponse
+import com.zendesk.service.ZendeskCallback
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -14,7 +13,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import zendesk.chat.*
-import zendesk.messaging.MessagingActivity
+import zendesk.classic.messaging.MessagingActivity
+import java.lang.reflect.Method
 
 
 /** ZendeskHelper */
@@ -77,6 +77,19 @@ try {
         removeTags(call)
         result.success(true)
       }
+      "sendMessage" -> {
+        sendMessage(call)
+        result.success(true)
+      }
+      "endChat" -> {
+        result.success(endChat())
+      }
+      "registerPushToken" -> {
+        registerPushToken(call, result)
+      }
+      "unregisterPushToken" -> {
+        unregisterPushToken(result)
+      }
       else -> {
         result.notImplemented()
       }
@@ -87,7 +100,7 @@ try {
 }
   }
 
-  fun initialize(call: MethodCall) {
+  private fun initialize(call: MethodCall) {
     Logger.setLoggable(BuildConfig.DEBUG)
     val accountKey = call.argument<String>("accountKey") ?: ""
     val applicationId = call.argument<String>("appId") ?: ""
@@ -95,7 +108,7 @@ try {
     Chat.INSTANCE.init(activity, accountKey, applicationId)
   }
 
-  fun setVisitorInfo(call: MethodCall) {
+  private fun setVisitorInfo(call: MethodCall) {
     val name = call.argument<String>("name") ?: ""
     val email = call.argument<String>("email") ?: ""
     val phoneNumber = call.argument<String>("phoneNumber") ?: ""
@@ -113,40 +126,114 @@ try {
     chatProvider?.setDepartment(department, null)
   }
 
-  fun addTags(call: MethodCall) {
+  private fun addTags(call: MethodCall) {
     val tags = call.argument<List<String>>("tags") ?: listOf<String>()
     val profileProvider = Chat.INSTANCE.providers()?.profileProvider()
     profileProvider?.addVisitorTags(tags, null)
   }
 
-  fun removeTags(call: MethodCall) {
+  private fun removeTags(call: MethodCall) {
     val tags = call.argument<List<String>>("tags") ?: listOf<String>()
     val profileProvider = Chat.INSTANCE.providers()?.profileProvider()
     profileProvider?.removeVisitorTags(tags, null)
   }
 
-  fun startChat(call: MethodCall) {
+  private fun startChat(call: MethodCall) {
+    val toolbarTitle = call.argument<String>("toolbarTitle") ?: "Contact Us"
+    val botName = call.argument<String>("botName") ?: "Answer Bot"
     val isPreChatFormEnabled = call.argument<Boolean>("isPreChatFormEnabled") ?: true
+    val isPreChatEmailField = call.argument<Boolean>("isPreChatEmailField") ?: true
+    val isPreChatNameField = call.argument<Boolean>("isPreChatNameField") ?: true
+    val isPreChatPhoneField = call.argument<Boolean>("isPreChatPhoneField") ?: true
     val isAgentAvailabilityEnabled = call.argument<Boolean>("isAgentAvailabilityEnabled") ?: true
     val isChatTranscriptPromptEnabled = call.argument<Boolean>("isChatTranscriptPromptEnabled") ?: true
     val isOfflineFormEnabled = call.argument<Boolean>("isOfflineFormEnabled") ?: true
+    val disableEndChatMenuAction = call.argument<Boolean>("disableEndChatMenuAction")?:false
+
+    val chatMenuAction = if (disableEndChatMenuAction) ChatMenuAction.CHAT_TRANSCRIPT else ChatMenuAction.END_CHAT
+    val withEmailField = if (isPreChatEmailField) PreChatFormFieldStatus.OPTIONAL else PreChatFormFieldStatus.HIDDEN
+    val withNameField = if (isPreChatNameField) PreChatFormFieldStatus.OPTIONAL else PreChatFormFieldStatus.HIDDEN
+    val withPhoneField = if (isPreChatPhoneField) PreChatFormFieldStatus.OPTIONAL else PreChatFormFieldStatus.HIDDEN
+
     val chatConfigurationBuilder = ChatConfiguration.builder()
     chatConfigurationBuilder
         .withAgentAvailabilityEnabled(isAgentAvailabilityEnabled)
         .withTranscriptEnabled(isChatTranscriptPromptEnabled)
         .withOfflineFormEnabled(isOfflineFormEnabled)
+        .withEmailFieldStatus(withEmailField)
+        .withNameFieldStatus(withNameField)
+        .withPhoneFieldStatus(withPhoneField)
         .withPreChatFormEnabled(isPreChatFormEnabled)
-        .withChatMenuActions(ChatMenuAction.END_CHAT)
+        .withChatMenuActions(chatMenuAction)
 
     val chatConfiguration = chatConfigurationBuilder.build()
+
 try {
   MessagingActivity.builder()
-          .withToolbarTitle("Contact Us")
+          .withToolbarTitle(toolbarTitle)
+          .withBotLabelString(botName)
           .withEngines(ChatEngine.engine())
           .show(activity, chatConfiguration)
 }catch ( e:Exception){
  throw e;
 }
 
+  }
+
+  private fun sendMessage(call: MethodCall) {
+    val message = call.argument<String>("message") ?: return
+
+    val chatProvider = Chat.INSTANCE.providers()?.chatProvider()
+    chatProvider?.sendMessage(message)
+  }
+
+  private fun endChat(): Boolean {
+    val chatProvider = Chat.INSTANCE.providers()?.chatProvider()
+
+    if(chatProvider?.chatState?.isChatting != true) {
+      return false
+    }
+
+    chatProvider.endChat(object : ZendeskCallback<Void>() {
+      override fun onSuccess(result: Void?) {
+        println("endChat onSuccess")
+      }
+
+      override fun onError(error: ErrorResponse?) {
+        println("endChat onError ${error?.reason}")
+      }
+    })
+
+    return true
+  }
+
+  private fun registerPushToken(call: MethodCall, flutterResult: Result) {
+    val pushToken = call.argument<String>("pushToken")
+    if(pushToken == null) {
+      flutterResult.error("registerPushToken", "pushToken is required", null)
+      return
+    }
+
+    val pushProvider = Chat.INSTANCE.providers()?.pushNotificationsProvider()
+
+    if(pushProvider == null) {
+      flutterResult.error("registerPushToken", "pushProvider is null", null)
+      return
+    }
+
+    pushProvider.registerPushToken(pushToken)
+    flutterResult.success(true)
+  }
+
+  private fun unregisterPushToken(flutterResult: Result) {
+    val pushProvider = Chat.INSTANCE.providers()?.pushNotificationsProvider()
+
+    if(pushProvider == null) {
+      flutterResult.error("unregisterPushToken", "pushProvider is null", null)
+      return
+    }
+
+    pushProvider.unregisterPushToken()
+    flutterResult.success(true)
   }
 }

@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_classes_with_only_static_members
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/services.dart';
 
@@ -49,20 +48,43 @@ class Zendesk {
   /// chat transcript at the end of the chat.
   ///
   /// If [isOfflineFormEnabled] is true, the offline form will be shown to the user.
-  static Future<void> startChat({bool? isDarkTheme,
+  ///
+  /// If [disableEndChatMenuAction] is true, disable the end chat menu item
+  ///
+  /// If [isPreChatEmailField] is false, The field email in pre-chat is hidden
+  ///
+  /// If [isPreChatNameField] is false, The field name in pre-chat is hidden
+  ///
+  /// If [isPreChatPhoneField] is false, The field phone in pre-chat is hidden
+  /// Optionally set bot's name using [botName]
+  /// Optionally set toolbarTitle using [toolbarTitle]
+  static Future<void> startChat({
+    bool? isDarkTheme,
     Color? primaryColor,
     bool isPreChatFormEnabled = true,
+    bool isPreChatEmailField = true,
+    bool isPreChatNameField = true,
+    bool isPreChatPhoneField = true,
     bool isAgentAvailabilityEnabled = true,
     bool isChatTranscriptPromptEnabled = true,
     bool isOfflineFormEnabled = true,
+    bool disableEndChatMenuAction = false,
+    String? botName = 'Answer Bot',
+    String? toolbarTitle = 'Contact Us',
   }) async {
     await _channel.invokeMethod<void>('startChat', {
       'isDarkTheme': isDarkTheme,
       'primaryColor': primaryColor?.value,
       'isPreChatFormEnabled': isPreChatFormEnabled,
+      'isPreChatEmailField': isPreChatEmailField,
+      'isPreChatNameField': isPreChatNameField,
+      'isPreChatPhoneField': isPreChatPhoneField,
       'isAgentAvailabilityEnabled': isAgentAvailabilityEnabled,
       'isChatTranscriptPromptEnabled': isChatTranscriptPromptEnabled,
-      'isOfflineFormEnabled': isOfflineFormEnabled
+      'isOfflineFormEnabled': isOfflineFormEnabled,
+      'disableEndChatMenuAction': disableEndChatMenuAction,
+      'toolbarTitle': toolbarTitle,
+      'botName': botName,
     });
   }
 
@@ -79,5 +101,26 @@ class Zendesk {
     await _channel.invokeMethod<void>('removeTags', {
       'tags': tags,
     });
+  }
+
+  /// Send [message] to the chat
+  static Future<void> sendMessage(String message) async {
+    await _channel.invokeMethod<void>('sendMessage', {
+      'message': message,
+    });
+  }
+
+  static Future<void> endChat() async {
+    await _channel.invokeMethod<void>('endChat');
+  }
+
+  static Future<void> registerPushToken(String pushToken) async {
+    await _channel.invokeMethod<void>('registerPushToken', {
+      'pushToken': pushToken,
+    });
+  }
+
+  static Future<void> unregisterPushToken() async {
+    await _channel.invokeMethod<void>('unregisterPushToken');
   }
 }
