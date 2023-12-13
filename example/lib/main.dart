@@ -21,10 +21,10 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) {
       return;
     }
-             const _accountKey='C4NkxGBoxHSTMW3Gm3gznZ6AxIqYXWkZ';
-  const _appId='ff92947363297c35ad960e50edc747e7a19dbbd7235a852e';
+    const _accountKey = 'tEzlDwhUWcHKdlvhRKx7Ts2uoob24x60';
+    const _appId = 'ff92947363297c35ad960e50edc747e7a19dbbd7235a852e';
 
-    await Zendesk.initialize(_accountKey, _appId);
+    await Zendesk.initialize(_accountKey);
   }
 
   @override
