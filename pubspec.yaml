@@ -1,8 +1,7 @@
 name: zendesk_helper
-description: A Flutter plugin for the Zendesk Chat SDK v2. Provides embed chat functionality in your apps to give your mobile users access to your support team
+description: A Flutter plugin for the Zendesk Chat SDK v2
+publish_to: none
 version: 1.0.1
-homepage: https://github.com/Muljin/
-repository: https://github.com/Muljin/zendesk_helper
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
